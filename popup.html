@@ -4,16 +4,19 @@
     <meta charset="utf-8" />
     <title>MailMind</title>
     <style>
-      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 10px; width: 300px; }
-      button { display:block; width:100%; margin:6px 0; padding:8px; }
-      #status { font-size:12px; color:#555; margin-top:6px; min-height:16px; }
+      body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; padding: 14px; width: 220px; background: #0b0f14; color: #e9eef6; }
+      .card { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.16); border-radius: 14px; padding: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.22); }
+      .title { font-size: 12px; letter-spacing: .3px; opacity: .9; }
+      .count { margin-top: 8px; font-size: 28px; font-weight: 700; line-height: 1; }
+      .muted { font-size: 12px; opacity: .8; margin-top: 6px; }
     </style>
   </head>
   <body>
-    <button id="btnMulti">Summarize Selected</button>
-    <button id="btnSingle">Summarize Open Email</button>
-    <button id="btnReply">Draft Reply for Open Email</button>
-    <div id="status"></div>
+    <div class="card">
+      <div class="title">Emails received today</div>
+      <div class="count" id="count">—</div>
+      <div class="muted" id="status"></div>
+    </div>
     <script src="popup.js"></script>
   </body>
   </html>
