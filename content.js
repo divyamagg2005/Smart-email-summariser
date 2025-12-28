@@ -49,7 +49,7 @@ function ensureSidebar() {
       .spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; animation: spin .8s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
       @keyframes spin { to { transform: rotate(360deg); } }
       .composer { margin-top: 12px; margin-bottom: 8px; background: linear-gradient(180deg, rgba(22,26,34,0.65), rgba(18,21,28,0.50)); border: 1px solid rgba(255,255,255,0.10); border-radius: 16px; padding: 10px; overflow: hidden; }
-      .textarea { width: 100%; min-height: 72px; resize: vertical; padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.20); background: rgba(0,0,0,0.28); color: #fff; outline: none; font-family: inherit; font-size: 13px; box-sizing: border-box; }
+      .textarea { width: 100%; min-height: 96px; resize: vertical; padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.20); background: rgba(0,0,0,0.28); color: #fff; outline: none; font-family: inherit; font-size: 13px; box-sizing: border-box; }
       .cta { margin-top: 8px; display: flex; justify-content: flex-end; }
       .primary { background: rgba(120,170,255,0.35); }
       .primary:hover { background: rgba(120,170,255,0.50); }
@@ -140,7 +140,7 @@ function ensureComposer() {
   el.className = 'composer';
   el.setAttribute('data-composer', '1');
   el.innerHTML = `
-    <textarea class="textarea" placeholder="Write how you want to reply (tone, intent, custom message)"></textarea>
+    <textarea class="textarea" placeholder="Write how you want to reply (tone, intent, custom message) . Note: To insert the drafted reply into Gmail, first click Gmail's Reply button to open the reply editor. Then click 'Insert into Reply Box'."></textarea>
     <div class="cta"><button class="btn primary" part="draft">Draft Reply</button></div>
     <div class="reply-actions hidden" part="reply-actions"><button class="btn primary" part="insert">Insert into Reply Box</button></div>
   `;
@@ -332,24 +332,43 @@ function initObservers() {
 
 function insertReplyIntoGmail(text) {
   function findEditor() {
-    const editors = Array.from(document.querySelectorAll('div[aria-label="Message Body"], div[aria-label="Reply"][contenteditable="true"], div.editable[contenteditable="true"]'));
-    return editors.find((el) => el.offsetParent !== null) || null;
+    const editors = Array.from(document.querySelectorAll('div[aria-label="Message Body"][contenteditable="true"], div[role="textbox"][contenteditable="true"], div.editable[contenteditable="true"]'));
+    const visible = editors.filter((el) => el.offsetParent !== null);
+    return visible[visible.length - 1] || null;
   }
+  function toHtml(t) {
+    const safe = escapeHtml(String(t || '').trim());
+    const blocks = safe.split(/\n{2,}/).map((p) => `<div>${p.replace(/\n/g, '<br>')}</div>`);
+    return blocks.join('') || `<div>${safe.replace(/\n/g, '<br>')}</div>`;
+  }
+  function insertInto(el, html) {
+    el.focus();
+    const ok = document.execCommand && document.execCommand('insertHTML', false, html);
+    if (!ok) {
+      el.innerHTML = html;
+      try { el.dispatchEvent(new InputEvent('input', { bubbles: true })); } catch (_) { el.dispatchEvent(new Event('input', { bubbles: true })); }
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }
+  const html = toHtml(text);
   let editor = findEditor();
-  if (!editor) {
-    const replyBtn = document.querySelector('div[role="button"][data-tooltip*="Reply"], div[aria-label="Reply"], span[role="link"][data-tooltip*="Reply"]');
-    if (replyBtn) replyBtn.click();
-    setTimeout(() => {
-      const ed = findEditor();
-      if (ed) {
-        ed.focus();
-        document.execCommand('insertText', false, text);
-      }
-    }, 400);
-  } else {
-    editor.focus();
-    document.execCommand('insertText', false, text);
+  if (editor) {
+    insertInto(editor, html);
+    return;
   }
+  const replyBtn = document.querySelector('div[role="button"][data-tooltip*="Reply"], div[aria-label="Reply"], span[role="link"][data-tooltip*="Reply"], div[role="button"][data-tooltip*="Reply to message"]');
+  if (replyBtn) replyBtn.click();
+  let tries = 0;
+  const iv = setInterval(() => {
+    const ed = findEditor();
+    if (ed) {
+      clearInterval(iv);
+      insertInto(ed, html);
+      return;
+    }
+    tries++;
+    if (tries >= 10) clearInterval(iv);
+  }, 200);
 }
 
 chrome.runtime.onMessage.addListener((msg) => {
