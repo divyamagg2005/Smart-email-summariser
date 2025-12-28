@@ -277,15 +277,26 @@ function sendToTab(tabId, payload) {
 
 async function countTodayMessages() {
   const now = new Date();
-  const y = now.getFullYear();
-  const m = String(now.getMonth() + 1).padStart(2, '0');
-  const d = String(now.getDate()).padStart(2, '0');
-  const q = `after:${y}/${m}/${d}`;
-  const res = await gmailFetch(`/messages?q=${encodeURIComponent(q)}&includeSpamTrash=false`);
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(`Gmail list failed: ${res.status}`);
-  const n = (data && typeof data.resultSizeEstimate === 'number') ? data.resultSizeEstimate : ((data && Array.isArray(data.messages)) ? data.messages.length : 0);
-  return n;
+  const next = new Date(now);
+  next.setDate(now.getDate() + 1);
+  const fmt = (dt) => {
+    const y = dt.getFullYear();
+    const m = String(dt.getMonth() + 1).padStart(2, '0');
+    const d = String(dt.getDate()).padStart(2, '0');
+    return `${y}/${m}/${d}`;
+  };
+  const q = `after:${fmt(now)} before:${fmt(next)}`;
+  let count = 0;
+  let pageToken = undefined;
+  do {
+    const url = `/messages?q=${encodeURIComponent(q)}&includeSpamTrash=false&maxResults=500` + (pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ``);
+    const res = await gmailFetch(url);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(`Gmail list failed: ${res.status}`);
+    if (data && Array.isArray(data.messages)) count += data.messages.length;
+    pageToken = data && data.nextPageToken;
+  } while (pageToken);
+  return count;
 }
 
 async function processQueue() {
