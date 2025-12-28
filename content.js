@@ -404,10 +404,12 @@ chrome.runtime.onMessage.addListener((msg) => {
   } else if (msg.type === 'mailmind_summary_result') {
     if (mmState.mode === 'multi') {
       setCardContent(msg.messageId || `msg-${Date.now()}`, escapeHtml(msg.summary));
+      if (msg.runId) chrome.runtime.sendMessage({ type: 'mailmind_metrics_render_ack', runId: msg.runId });
     }
   } else if (msg.type === 'mailmind_summary_error') {
     if (mmState.mode === 'multi') {
       setCardError(msg.messageId || `msg-${Date.now()}`, `Error: ${msg.error}`);
+      if (msg.runId) chrome.runtime.sendMessage({ type: 'mailmind_metrics_render_ack', runId: msg.runId });
     }
   } else if (msg.type === 'mailmind_single_result') {
     if (msg.mode === 'reply') {
@@ -418,6 +420,7 @@ chrome.runtime.onMessage.addListener((msg) => {
       if (ra) ra.classList.remove('hidden');
     } else {
       setCardContent('single-summary', escapeHtml(msg.summary));
+      if (msg.runId) chrome.runtime.sendMessage({ type: 'mailmind_metrics_render_ack', runId: msg.runId });
     }
   } else if (msg.type === 'mailmind_single_error') {
     if (msg.mode === 'reply') {
@@ -426,6 +429,7 @@ chrome.runtime.onMessage.addListener((msg) => {
       if (draftBtn) draftBtn.disabled = false;
     } else {
       setCardError('single-summary', msg.error);
+      if (msg.runId) chrome.runtime.sendMessage({ type: 'mailmind_metrics_render_ack', runId: msg.runId });
     }
   }
 });

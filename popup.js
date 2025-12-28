@@ -18,5 +18,19 @@ document.addEventListener('DOMContentLoaded', () => {
     setCount(res.count);
     setStatus('');
   });
+
+  const btn = document.getElementById('export-metrics');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      setStatus('Exporting metrics…');
+      chrome.runtime.sendMessage({ type: 'mailmind_export_metrics' }, (res) => {
+        if (!res || res.ok === false) {
+          setStatus((res && res.error) ? String(res.error) : 'Export failed');
+          return;
+        }
+        setStatus(`Exported ${res.count} records`);
+      });
+    });
+  }
 });
 

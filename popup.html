@@ -9,6 +9,8 @@
       .title { font-size: 12px; letter-spacing: .3px; opacity: .9; }
       .count { margin-top: 8px; font-size: 28px; font-weight: 700; line-height: 1; }
       .muted { font-size: 12px; opacity: .8; margin-top: 6px; }
+      .btn { margin-top: 10px; width: 100%; appearance: none; border: 0; background: rgba(255,255,255,0.12); color: #e9eef6; padding: 8px 10px; border-radius: 10px; cursor: pointer; font-size: 12px; }
+      .btn:hover { background: rgba(255,255,255,0.18); }
     </style>
   </head>
   <body>
@@ -17,6 +19,7 @@
       <div class="count" id="count">—</div>
       <div class="muted" id="status"></div>
     </div>
+    <button id="export-metrics" class="btn">Export Evaluation Metrics</button>
     <script src="popup.js"></script>
   </body>
   </html>
