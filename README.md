@@ -108,7 +108,10 @@ Each user operation creates a “run” with:
 - `tokensTotal`, `tokensPerEmail` = Groq usage accounting when available.
 - `cacheHit` (any hit), `queueWaitMs` (avg), `queueLength` (max), `success/error`.
 
-Exported metrics are downloaded to `evaluation_metrics.json` via the popup.
+Exported metrics are downloaded to `metrics.json` via the popup.
+NOTE: The exported file is named `metrics.json` but contains the data previously stored under the key `evaluation_metrics` in Chrome storage.
+NOTE: The data is stored in Chrome storage under the key `evaluation_metrics`, but the downloaded file is named `metrics.json`.
+NOTE: If chrome prompts you to save the file in your preffered location save it in the metric analysis folder as the metric_analysis.py read the file from that location only . 
 
 Important “batch” clarification:
 - In `evaluation_metrics.json`, the “batch”/`batchSize` value is a label representing how many emails were selected in the UI. There is no true parallel or batched Groq request in `background.js`. Items are processed sequentially according to the queue and global delay.

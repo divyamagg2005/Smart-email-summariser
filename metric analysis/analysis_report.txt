@@ -1,0 +1,213 @@
+================================================================================
+EMAIL SUMMARIZATION SYSTEM PERFORMANCE ANALYSIS
+================================================================================
+
+1. DATASET OVERVIEW
+--------------------------------------------------------------------------------
+Total number of runs: 70
+Successful runs: 63 (90.0%)
+Failed runs: 7 (10.0%)
+
+Distribution of batchSize values:
+  batchSize=1: 44 runs (62.9%)
+  batchSize=2: 9 runs (12.9%)
+  batchSize=3: 7 runs (10.0%)
+  batchSize=4: 5 runs (7.1%)
+  batchSize=5: 2 runs (2.9%)
+  batchSize=6: 1 runs (1.4%)
+  batchSize=9: 1 runs (1.4%)
+  batchSize=40: 1 runs (1.4%)
+
+Cache-served runs (tokensTotal == 0): 15 (21.4%)
+LLM-invoked runs (tokensTotal > 0): 55 (78.6%)
+
+2. SINGLE vs MULTI-EMAIL ANALYSIS
+--------------------------------------------------------------------------------
+Single-email runs (batchSize == 1): 44
+Multi-email runs (batchSize > 1): 26
+
+SINGLE-EMAIL INTERACTIONS:
+  LLM-invoked runs: 38
+  Average latency: 450.95 ms
+  Median latency: 382.00 ms
+  Min latency: 236.00 ms
+  Max latency: 2209.00 ms
+  Average throughput: 2.5756 emails/sec
+  Failure rate: 0/38 (0.0%)
+  Cache-served rate: 6/44 (13.6%)
+
+MULTI-EMAIL INTERACTIONS:
+  LLM-invoked runs: 17
+  Average latency: 7155.82 ms
+  Median latency: 3362.00 ms
+  Min latency: 1617.00 ms
+  Max latency: 63139.00 ms
+  Average throughput: 1.0639 emails/sec
+  Failure rate: 5/17 (29.4%)
+  Cache-served rate: 9/26 (34.6%)
+
+3. CACHE IMPACT ANALYSIS
+--------------------------------------------------------------------------------
+Overall cache statistics:
+  Cache-served: 15 runs
+  LLM-invoked: 55 runs
+
+Single-email cache-served percentage: 6/44 (13.6%)
+Multi-email cache-served percentage: 9/26 (34.6%)
+
+Latency distribution for LLM-invoked runs:
+  Mean: 2523.36 ms
+  Median: 487.00 ms
+  Std: 8514.76 ms
+
+4. QUEUE BEHAVIOR ANALYSIS
+--------------------------------------------------------------------------------
+Runs with queue wait (queueWaitMs > 0): 17
+Runs without queue wait (queueWaitMs == 0): 38
+
+Average queueWaitMs (when > 0): 2822.43 ms
+Average latency when queueWaitMs > 0: 7155.82 ms
+Average latency when queueWaitMs == 0: 450.95 ms
+
+Correlation coefficient (queueWaitMs vs latencyMs, for queueWaitMs > 0): 0.9974
+
+5. MULTI-EMAIL SCALING BEHAVIOR
+--------------------------------------------------------------------------------
+Performance by batchSize (LLM-invoked runs only):
+
+batchSize = 1:
+  Number of LLM-invoked runs: 38
+  Average latency: 450.95 ms
+  Average throughput: 2.5756 emails/sec
+  Failure rate: 0/38 (0.0%)
+  Cache-served (all runs): 6/44 (13.6%)
+
+batchSize = 2:
+  Number of LLM-invoked runs: 7
+  Average latency: 3805.43 ms
+  Average throughput: 0.5543 emails/sec
+  Failure rate: 1/7 (14.3%)
+  Cache-served (all runs): 2/9 (22.2%)
+
+batchSize = 3:
+  Number of LLM-invoked runs: 4
+  Average latency: 3011.25 ms
+  Average throughput: 1.3213 emails/sec
+  Failure rate: 1/4 (25.0%)
+  Cache-served (all runs): 3/7 (42.9%)
+
+batchSize = 4:
+  Number of LLM-invoked runs: 2
+  Average latency: 1990.00 ms
+  Average throughput: 2.0118 emails/sec
+  Failure rate: 0/2 (0.0%)
+  Cache-served (all runs): 3/5 (60.0%)
+
+batchSize = 5:
+  Number of LLM-invoked runs: 1
+  Average latency: 2510.00 ms
+  Average throughput: 1.9921 emails/sec
+  Failure rate: 0/1 (0.0%)
+  Cache-served (all runs): 1/2 (50.0%)
+
+batchSize = 6:
+  Number of LLM-invoked runs: 1
+  Average latency: 5082.00 ms
+  Average throughput: 1.1807 emails/sec
+  Failure rate: 1/1 (100.0%)
+  Cache-served (all runs): 0/1 (0.0%)
+
+batchSize = 9:
+  Number of LLM-invoked runs: 1
+  Average latency: 8255.00 ms
+  Average throughput: 1.0902 emails/sec
+  Failure rate: 1/1 (100.0%)
+  Cache-served (all runs): 0/1 (0.0%)
+
+batchSize = 40:
+  Number of LLM-invoked runs: 1
+  Average latency: 63139.00 ms
+  Average throughput: 0.6335 emails/sec
+  Failure rate: 1/1 (100.0%)
+  Cache-served (all runs): 0/1 (0.0%)
+
+6. TOKEN USAGE ANALYSIS
+--------------------------------------------------------------------------------
+Runs with token usage: 55
+Average tokensPerEmail: 823.29
+Median tokensPerEmail: 858.00
+Max tokensPerEmail: 2587.00
+Min tokensPerEmail: 57.00
+
+Token usage distribution quartiles:
+  25th percentile: 315.00
+  50th percentile: 858.00
+  75th percentile: 1251.50
+
+7. ERROR & FAILURE ANALYSIS
+--------------------------------------------------------------------------------
+Total failed runs: 7
+
+Error frequency:
+  'Groq API error 429': 2 occurrences
+  'Groq API error 413': 2 occurrences
+  '3 errors': 1 occurrences
+  '2 errors': 1 occurrences
+  '14 errors': 1 occurrences
+
+Error categorization:
+  Rate-limit errors (HTTP 429): 2
+  Payload-size errors (HTTP 413): 2
+  Other failures: 3
+
+Failure correlation with batchSize:
+  Average batchSize for failures: 9.57
+  Average batchSize for successes: 1.60
+
+Failure correlation with queueWaitMs:
+  Average queueWaitMs for failures: 5847.00 ms
+  Average queueWaitMs for successes: 149.27 ms
+
+8. GENERATING VISUALIZATIONS
+--------------------------------------------------------------------------------
+Visualizations saved to 'performance_analysis.png'
+
+================================================================================
+FINAL SUMMARY
+================================================================================
+
+SINGLE vs MULTI-EMAIL LATENCY COMPARISON:
+  Single-email average latency: 450.95 ms
+  Multi-email average latency: 7155.82 ms
+  Difference: 6704.88 ms (1486.8% higher for multi-email)
+
+CACHE EFFECTIVENESS:
+  Single-email cache-served rate: 13.6%
+  Multi-email cache-served rate: 34.6%
+  Overall cache-served rate: 21.4%
+  Caching reduces the number of LLM invocations by serving repeated requests locally
+
+QUEUEING IMPACT:
+  Average latency with queue wait: 7155.82 ms
+  Average latency without queue wait: 450.95 ms
+  Queue wait adds: 2822.43 ms on average
+  Strong positive correlation (r=0.997) between queue wait and total latency
+  Note: correlation indicates association, not causation
+  7/7 failures occurred with queue wait
+
+MULTI-EMAIL SCALING BEHAVIOR:
+  As batchSize increases from 1 to 40:
+    Average latency changes by 62688.05 ms
+  This reflects sequential processing of multiple emails in a single user interaction
+
+SYSTEM LIMITATIONS:
+  • Sequential execution: All emails are processed one at a time via a queue
+  • No parallel processing: batchSize represents user interaction workload, not execution batching
+  • Rate limiting: Fixed delay between LLM calls (QUEUE_DELAY_MS = 1800ms)
+  • Failure modes observed: 7 failures across 70 runs
+    - Rate limit errors (429): 2 occurrences
+    - Payload size errors (413): 2 occurrences
+
+================================================================================
+ANALYSIS COMPLETE
+================================================================================

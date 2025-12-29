@@ -674,7 +674,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           const arr = items && Array.isArray(items[METRICS_KEY]) ? items[METRICS_KEY] : [];
           const json = JSON.stringify(arr, null, 2);
           const url = 'data:application/json;charset=utf-8,' + encodeURIComponent(json);
-          chrome.downloads && chrome.downloads.download({ url, filename: 'evaluation_metrics.json', saveAs: true }, () => void 0);
+          chrome.downloads && chrome.downloads.download({ url, filename: 'metrics.json', saveAs: true }, () => void 0);
           sendResponse({ ok: true, count: arr.length });
         });
       } catch (e) {
