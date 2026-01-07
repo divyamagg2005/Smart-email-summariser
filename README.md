@@ -78,7 +78,7 @@ MailMind is a Chrome extension that leverages Groq LLMs to **summarize Gmail ema
 - i18n.
 
 ## 📄 License
-MIT (to be added).
+MIT.
 
 ---
 **Author:** Divyam Aggarwal <divyamagg2005@gmail.com>
